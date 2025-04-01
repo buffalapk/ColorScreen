@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>フルスクリーンカラー</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .mdc-dialog {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="color-dialog" class="mdc-dialog" role="alertdialog" aria-modal="true">
+        <div class="mdc-dialog__container">
+            <div class="mdc-dialog__surface">
+                <h2 class="mdc-dialog__title">色を選択</h2>
+                <div class="mdc-dialog__content">
+                    <input type="color" id="color-picker">
+                </div>
+                <div class="mdc-dialog__actions">
+                    <button id="cancel-button" class="mdc-button mdc-dialog__button">キャンセル</button>
+                    <button id="ok-button" class="mdc-button mdc-dialog__button">OK</button>
+                </div>
+            </div>
+        </div>
+        <div class="mdc-dialog__scrim"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/material-components-web/14.0.0/material-components-web.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const body = document.body;
+            const dialogElement = document.getElementById("color-dialog");
+            const colorPicker = document.getElementById("color-picker");
+            const cancelButton = document.getElementById("cancel-button");
+            const okButton = document.getElementById("ok-button");
+
+            const dialog = new mdc.dialog.MDCDialog(dialogElement);
+
+            let longPressTimer;
+
+            function showDialog(event) {
+                event.preventDefault();
+                dialog.open();
+            }
+
+            body.addEventListener("touchstart", function (event) {
+                longPressTimer = setTimeout(() => showDialog(event), 500);
+            });
+
+            body.addEventListener("touchend", function () {
+                clearTimeout(longPressTimer);
+            });
+
+            okButton.addEventListener("click", function () {
+                body.style.backgroundColor = colorPicker.value;
+                dialog.close();
+            });
+
+            cancelButton.addEventListener("click", function () {
+                dialog.close();
+            });
+
+            // 画面の明るさを最大にする（ユーザー操作が必要）
+            function setScreenBrightnessMax() {
+                if ('wakeLock' in navigator) {
+                    navigator.wakeLock.request('screen')
+                        .then(() => console.log("Screen brightness set to max"))
+                        .catch(err => console.log("Wake Lock error:", err));
+                }
+            }
+
+            document.addEventListener("click", setScreenBrightnessMax);
+        });
+    </script>
+</body>
+</html>
